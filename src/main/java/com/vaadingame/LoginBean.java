@@ -5,7 +5,7 @@ import javax.validation.constraints.Size;
 
 public class LoginBean {
 
-    @NotNull(message = "Nazwa użytkowanika nie może być pusta")
+    @NotNull(message = "Nazwa użytkownika nie może być pusta")
     @Size(min = 4, max = 30, message = "Nazwa użytkownika musi zawierać od 4 do 30 znaków")
     private String name;
 
