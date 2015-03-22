@@ -7,6 +7,9 @@ import com.vaadin.data.validator.BeanValidator;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.server.ExternalResource;
+import com.vaadin.server.Resource;
+import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
 
 @DesignRoot
@@ -14,9 +17,9 @@ public class RegistrationView extends VerticalLayout implements View {
     public RegistrationView(final Navigator navigator) {
         setSizeFull();
 
-        TextField txtFldName = new TextField("Name");
-        PasswordField txtFldPassword = new PasswordField("Password");
-        PasswordField txtFldConfirmPass = new PasswordField("Confirm password");
+        TextField txtFldName = new TextField("Login");
+        PasswordField txtFldPassword = new PasswordField("Hasło");
+        PasswordField txtFldConfirmPass = new PasswordField("Potwierdź hasło");
 
         RegistrationBean bean = new RegistrationBean();
         BeanItem<RegistrationBean> item = new BeanItem<RegistrationBean>(bean);
@@ -52,6 +55,13 @@ public class RegistrationView extends VerticalLayout implements View {
         panel.setContent(formLayout);
         addComponent(panel);
         setComponentAlignment(panel, Alignment.MIDDLE_CENTER);
+
+        HorizontalLayout layout = new HorizontalLayout();
+        layout.addComponent(new Label("Masz już konto?&nbsp;", ContentMode.HTML));
+        layout.addComponent(new Link("Zaloguj się", new ExternalResource("/#!login")));
+
+        addComponent(layout);
+        setComponentAlignment(layout, Alignment.TOP_CENTER);
     }
 
     @Override
