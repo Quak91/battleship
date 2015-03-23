@@ -28,7 +28,7 @@ public class LoginView extends VerticalLayout implements View{
 
         txtFldName.addValidator(new BeanValidator(LoginBean.class, "name"));
         txtFldPassword.addValidator(new BeanValidator(LoginBean.class, "password"));
-        //TODO własny walidator, który sprawdza czy w bazie jest taki login
+        txtFldName.addValidator(new LoginNameValidator());
 
         txtFldName.setImmediate(true);
         txtFldPassword.setImmediate(true);

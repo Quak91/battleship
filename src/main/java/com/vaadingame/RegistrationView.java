@@ -8,7 +8,6 @@ import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.ExternalResource;
-import com.vaadin.server.Resource;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
 
@@ -33,9 +32,9 @@ public class RegistrationView extends VerticalLayout implements View {
         binder.bind(txtFldConfirmPass, "confirm_password");
 
         txtFldName.addValidator(new BeanValidator(RegistrationBean.class, "name"));
+        txtFldName.addValidator(new RegisterNameValidator());
         txtFldPassword.addValidator(new BeanValidator(RegistrationBean.class, "password"));
         txtFldConfirmPass.addValidator(new BeanValidator(RegistrationBean.class, "confirm_password"));
-        // TODO własne walidatory (czy nazwa już zajęta)
         txtFldConfirmPass.addValidator(new PasswordValidator(txtFldPassword));
 
         txtFldName.setImmediate(true);
