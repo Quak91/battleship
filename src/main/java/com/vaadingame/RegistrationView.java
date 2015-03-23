@@ -25,24 +25,25 @@ public class RegistrationView extends VerticalLayout implements View {
         bean.setName("");
         bean.setPassword("");
         bean.setConfirm_password("");
+
         BeanItem<RegistrationBean> item = new BeanItem<RegistrationBean>(bean);
         final FieldGroup binder = new FieldGroup(item);
         binder.bind(txtFldName, "name");
         binder.bind(txtFldPassword, "password");
         binder.bind(txtFldConfirmPass, "confirm_password");
+
         txtFldName.addValidator(new BeanValidator(RegistrationBean.class, "name"));
         txtFldPassword.addValidator(new BeanValidator(RegistrationBean.class, "password"));
         txtFldConfirmPass.addValidator(new BeanValidator(RegistrationBean.class, "confirm_password"));
         // TODO własne walidatory (czy nazwa już zajęta)
         txtFldConfirmPass.addValidator(new PasswordValidator(txtFldPassword));
+
         txtFldName.setImmediate(true);
         txtFldPassword.setImmediate(true);
         txtFldConfirmPass.setImmediate(true);
 
         FormLayout formLayout = new FormLayout();
-        formLayout.addComponent(txtFldName);
-        formLayout.addComponent(txtFldPassword);
-        formLayout.addComponent(txtFldConfirmPass);
+        formLayout.addComponents(txtFldName, txtFldPassword, txtFldConfirmPass);
         formLayout.addComponent(new Button("Zarejestruj", new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
