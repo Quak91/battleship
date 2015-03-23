@@ -1,5 +1,9 @@
 package com.vaadingame;
 
+import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.MongoClient;
 import com.vaadin.annotations.DesignRoot;
 import com.vaadin.data.fieldgroup.FieldGroup;
 import com.vaadin.data.util.BeanItem;
@@ -11,6 +15,8 @@ import com.vaadin.server.ExternalResource;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
 
+import java.net.UnknownHostException;
+
 @DesignRoot
 public class RegistrationView extends VerticalLayout implements View {
     public RegistrationView(final Navigator navigator) {
@@ -20,7 +26,7 @@ public class RegistrationView extends VerticalLayout implements View {
         PasswordField txtFldPassword = new PasswordField("Hasło");
         PasswordField txtFldConfirmPass = new PasswordField("Potwierdź hasło");
 
-        RegistrationBean bean = new RegistrationBean();
+        final RegistrationBean bean = new RegistrationBean();
         bean.setName("");
         bean.setPassword("");
         bean.setConfirm_password("");
@@ -48,7 +54,16 @@ public class RegistrationView extends VerticalLayout implements View {
             public void buttonClick(Button.ClickEvent clickEvent) {
                 try {
                     binder.commit();
-                    //TODO dodać do bazy
+                    // rejestracja w bazie danych
+                    try {
+                        MongoClient mongoClient = new MongoClient("localhost", 27017);
+                        DB db = mongoClient.getDB("baza");
+                        DBCollection collection = db.getCollection("users");
+                        collection.insert(new BasicDBObject("name", bean.getName()).append("password", bean.getPassword()));
+                    } catch (UnknownHostException e) {
+                        System.err.println("Błąd połączenia z bazą danych");
+                    }
+
                     /*
                      * okienko z wiadomością o pomyślnej rejestracji
                      * oraz z możliwością przejścia do logowania
@@ -80,7 +95,7 @@ public class RegistrationView extends VerticalLayout implements View {
                     window.center();
                     getUI().addWindow(window);
                 } catch (FieldGroup.CommitException e) {
-                    //walidacja nie przechodzi
+                    // walidacja nie przechodzi
                     Notification.show("Wprowadzono nieprawidłowe dane", Notification.Type.ERROR_MESSAGE);
                 }
             }

@@ -1,5 +1,6 @@
 package com.vaadingame;
 
+import com.mongodb.*;
 import com.vaadin.data.fieldgroup.FieldGroup;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.validator.BeanValidator;
@@ -10,14 +11,19 @@ import com.vaadin.server.ExternalResource;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
 
+import java.net.UnknownHostException;
+
 public class LoginView extends VerticalLayout implements View{
+    final Navigator navigator;
+
     public LoginView(final Navigator navigator) {
         setSizeFull();
+        this.navigator = navigator;
 
         TextField txtFldName = new TextField("Login");
         PasswordField txtFldPassword = new PasswordField("Hasło");
 
-        LoginBean bean = new LoginBean();
+        final LoginBean bean = new LoginBean();
         bean.setName("");
         bean.setPassword("");
 
@@ -40,8 +46,26 @@ public class LoginView extends VerticalLayout implements View{
             public void buttonClick(Button.ClickEvent clickEvent) {
                 try {
                     binder.commit();
-                    //TODO zalogować użytkownika i przekierować do PlayersView
+                    // sprawdzam login i hasło w bazie
+                    try {
+                        MongoClient mongoClient = new MongoClient("localhost", 27017);
+                        DB db = mongoClient.getDB("baza");
+                        DBCollection collection = db.getCollection("users");
+                        BasicDBObject query = new BasicDBObject("name",bean.getName());
+                        Cursor cursor = collection.find(query);
+                        // jeśli hasło prawidłowe to zapisać login w sesji i przekierować do PlayersView
+                        if(cursor.next().get("password").equals(bean.getPassword())) {
+                            getSession().setAttribute("login", bean.getName());
+                            navigator.navigateTo("players");
+                        } else {
+                            // hasło nieprawidłowe
+                            Notification.show("Nieprawidłowe hasło", Notification.Type.ERROR_MESSAGE);
+                        }
+                    } catch (UnknownHostException e) {
+                        System.err.println("Błąd połączenia z bazą danych");
+                    }
                 } catch (FieldGroup.CommitException e) {
+                    // walidacja nie przechodzi
                     Notification.show("Wprowadzono nieprawidłowe dane", Notification.Type.ERROR_MESSAGE);
                 }
             }
@@ -64,6 +88,7 @@ public class LoginView extends VerticalLayout implements View{
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent viewChangeEvent) {
-        //TODO jeśli zalogowany to przekierować do PlayersView
+        // jeśli zalogowany to przekierować do PlayersView
+        if(getSession().getAttribute("login")!=null) navigator.navigateTo("players");
     }
 }
