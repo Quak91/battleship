@@ -13,6 +13,7 @@ public class RegistrationBean {
     @Size(min = 8, message = "Hasło musi zawierać co najmniej 8 znaków")
     private String password;
 
+    @Size(min = 8, message = "Hasło musi zawierać co najmniej 8 znaków")
     private String confirm_password;
 
     public String getName() {

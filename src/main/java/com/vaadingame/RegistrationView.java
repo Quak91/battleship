@@ -22,6 +22,9 @@ public class RegistrationView extends VerticalLayout implements View {
         PasswordField txtFldConfirmPass = new PasswordField("Potwierdź hasło");
 
         RegistrationBean bean = new RegistrationBean();
+        bean.setName("");
+        bean.setPassword("");
+        bean.setConfirm_password("");
         BeanItem<RegistrationBean> item = new BeanItem<RegistrationBean>(bean);
         final FieldGroup binder = new FieldGroup(item);
         binder.bind(txtFldName, "name");
@@ -29,9 +32,12 @@ public class RegistrationView extends VerticalLayout implements View {
         binder.bind(txtFldConfirmPass, "confirm_password");
         txtFldName.addValidator(new BeanValidator(RegistrationBean.class, "name"));
         txtFldPassword.addValidator(new BeanValidator(RegistrationBean.class, "password"));
-        // TODO własne walidatory (czy nazwa już zajęta, czy password i confirm password są takie same)
+        txtFldConfirmPass.addValidator(new BeanValidator(RegistrationBean.class, "confirm_password"));
+        // TODO własne walidatory (czy nazwa już zajęta)
+        txtFldConfirmPass.addValidator(new PasswordValidator(txtFldPassword));
         txtFldName.setImmediate(true);
         txtFldPassword.setImmediate(true);
+        txtFldConfirmPass.setImmediate(true);
 
         FormLayout formLayout = new FormLayout();
         formLayout.addComponent(txtFldName);
