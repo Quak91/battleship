@@ -48,9 +48,40 @@ public class RegistrationView extends VerticalLayout implements View {
             public void buttonClick(Button.ClickEvent clickEvent) {
                 try {
                     binder.commit();
-                    //TODO dodanie użytkownika do bazy i komunikat
+                    //TODO dodać do bazy
+                    /*
+                     * okienko z wiadomością o pomyślnej rejestracji
+                     * oraz z możliwością przejścia do logowania
+                     */
+                    final Window window = new Window("Zarejestrowano");
+                    VerticalLayout windowLayout = new VerticalLayout();
+                    windowLayout.setMargin(true);
+                    window.setContent(windowLayout);
+                    windowLayout.addComponent(new Label("Rejestracja przebiegła pomyślnie."));
+                    windowLayout.addComponent(new Label("Czy chcesz przejść do logowania?"));
+                    windowLayout.addComponent(new Label(""));
+                    Button btnOk = new Button("Tak", new Button.ClickListener() {
+                        @Override
+                        public void buttonClick(Button.ClickEvent clickEvent) {
+                            navigator.navigateTo("login");
+                            window.close();
+                        }
+                    });
+                    Button btnNo = new Button("Nie", new Button.ClickListener() {
+                        @Override
+                        public void buttonClick(Button.ClickEvent clickEvent) {
+                            window.close();
+                        }
+                    });
+                    HorizontalLayout buttonsLayout = new HorizontalLayout(btnOk, new Label("&nbsp;&nbsp;&nbsp;",ContentMode.HTML), btnNo);
+                    buttonsLayout.setSizeUndefined();
+                    windowLayout.addComponent(buttonsLayout);
+                    windowLayout.setComponentAlignment(buttonsLayout, Alignment.MIDDLE_CENTER);
+                    window.center();
+                    getUI().addWindow(window);
                 } catch (FieldGroup.CommitException e) {
-                    //TODO komunikat o błędzie
+                    //walidacja nie przechodzi
+                    Notification.show("Wprowadzono nieprawidłowe dane", Notification.Type.ERROR_MESSAGE);
                 }
             }
         }));

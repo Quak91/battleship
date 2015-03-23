@@ -42,7 +42,7 @@ public class LoginView extends VerticalLayout implements View{
                     binder.commit();
                     //TODO zalogować użytkownika i przekierować do PlayersView
                 } catch (FieldGroup.CommitException e) {
-                    //TODO komunikat o błędzie
+                    Notification.show("Wprowadzono nieprawidłowe dane", Notification.Type.ERROR_MESSAGE);
                 }
             }
         }));
@@ -64,6 +64,6 @@ public class LoginView extends VerticalLayout implements View{
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent viewChangeEvent) {
-
+        //TODO jeśli zalogowany to przekierować do PlayersView
     }
 }
