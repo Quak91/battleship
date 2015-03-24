@@ -8,6 +8,7 @@ import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.ExternalResource;
+import com.vaadin.server.Page;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
 
@@ -49,7 +50,7 @@ public class LoginView extends VerticalLayout implements View{
                     // sprawdzam login i hasło w bazie
                     try {
                         MongoClient mongoClient = new MongoClient("localhost", 27017);
-                        DB db = mongoClient.getDB("baza");
+                        DB db = mongoClient.getDB("battleship");
                         DBCollection collection = db.getCollection("users");
                         BasicDBObject query = new BasicDBObject("name",bean.getName());
                         Cursor cursor = collection.find(query);
@@ -88,6 +89,7 @@ public class LoginView extends VerticalLayout implements View{
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent viewChangeEvent) {
+        Page.getCurrent().setTitle("Battleship - logowanie");
         // jeśli zalogowany to przekierować do PlayersView
         if(getSession().getAttribute("login")!=null) navigator.navigateTo("players");
     }

@@ -14,7 +14,7 @@ public class LoginNameValidator implements Validator{
     public LoginNameValidator() {
         try {
             mongoClient = new MongoClient("localhost", 27017);
-            db = mongoClient.getDB("baza");
+            db = mongoClient.getDB("battleship");
             collection = db.getCollection("users");
         } catch (UnknownHostException e) {
             System.err.println("Błąd połączenia z bazą danych");

@@ -12,6 +12,7 @@ import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.ExternalResource;
+import com.vaadin.server.Page;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
 
@@ -57,7 +58,7 @@ public class RegistrationView extends VerticalLayout implements View {
                     // rejestracja w bazie danych
                     try {
                         MongoClient mongoClient = new MongoClient("localhost", 27017);
-                        DB db = mongoClient.getDB("baza");
+                        DB db = mongoClient.getDB("battleship");
                         DBCollection collection = db.getCollection("users");
                         collection.insert(new BasicDBObject("name", bean.getName()).append("password", bean.getPassword()));
                     } catch (UnknownHostException e) {
@@ -118,6 +119,7 @@ public class RegistrationView extends VerticalLayout implements View {
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent viewChangeEvent) {
+        Page.getCurrent().setTitle("Battleship - rejestracja");
 
     }
 }
