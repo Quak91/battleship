@@ -18,5 +18,7 @@ public class PlayersView extends VerticalLayout implements View{
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent viewChangeEvent) {
         Page.getCurrent().setTitle("Battleship - lista graczy");
+        //jeśli niezalogowany to przekierowanie do logowania
+        if(getSession().getAttribute("login")==null) navigator.navigateTo("login");
     }
 }
