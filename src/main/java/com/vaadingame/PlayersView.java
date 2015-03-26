@@ -53,13 +53,14 @@ public class PlayersView extends VerticalLayout implements View, PlayersBroadcas
             table.removeAllItems();
             int i = 1;
             for (PlayersBroadcaster.BroadcastListener listener : list) {
-                //TODO nie dodawać siebie do tabeli (gracz nie może grać sam ze sobą)
-                Object newItemId = table.addItem();
-                Item row = table.getItem(newItemId);
-                row.getItemProperty("Lp").setValue(i);
-                row.getItemProperty("Nazwa gracza").setValue(listener.getName());
-                row.getItemProperty("Zaproś do gry").setValue(new Button("Zaproś do gry"));
-                i++;
+                if (!getName().equals(listener.getName())) {
+                    Object newItemId = table.addItem();
+                    Item row = table.getItem(newItemId);
+                    row.getItemProperty("Lp").setValue(i);
+                    row.getItemProperty("Nazwa gracza").setValue(listener.getName());
+                    row.getItemProperty("Zaproś do gry").setValue(new Button("Zaproś do gry"));
+                    i++;
+                }
             }
             table.setPageLength(table.size());
         } finally {

@@ -20,7 +20,8 @@ public class PlayersBroadcaster {
     }
 
     public static synchronized void unregister(BroadcastListener listener) {
-        listeners.remove(listener);
+        if(listeners.contains(listener))
+            listeners.remove(listener);
         broadcastList();
     }
 
