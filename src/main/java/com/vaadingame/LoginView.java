@@ -57,7 +57,7 @@ public class LoginView extends VerticalLayout implements View{
                         // jeśli hasło prawidłowe to zapisać login w sesji i przekierować do PlayersView
                         if(cursor.next().get("password").equals(bean.getPassword())) {
                             getSession().setAttribute("login", bean.getName());
-                            navigator.navigateTo("players");
+                            navigator.navigateTo("game");
                         } else {
                             // hasło nieprawidłowe
                             Notification.show("Nieprawidłowe hasło", Notification.Type.ERROR_MESSAGE);
@@ -91,6 +91,6 @@ public class LoginView extends VerticalLayout implements View{
     public void enter(ViewChangeListener.ViewChangeEvent viewChangeEvent) {
         Page.getCurrent().setTitle("Battleship - logowanie");
         // jeśli zalogowany to przekierować do PlayersView
-        if(getSession().getAttribute("login")!=null) navigator.navigateTo("players");
+        if(getSession().getAttribute("login")!=null) navigator.navigateTo("game");
     }
 }

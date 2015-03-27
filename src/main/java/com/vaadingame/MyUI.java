@@ -16,16 +16,15 @@ import elemental.json.JsonArray;
 @Widgetset("com.vaadingame.MyAppWidgetset")
 public class MyUI extends UI {
     private Navigator navigator;
-    private PlayersView playersView;
+    private GameView gameView;
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {
         navigator = new Navigator(this, this);
-        playersView = new PlayersView(navigator);
+        gameView = new GameView(navigator);
         navigator.addView("", new RegistrationView(navigator));
         navigator.addView("login", new LoginView(navigator));
-        navigator.addView("players", playersView);
-        navigator.addView("game", new GameView(navigator));
+        navigator.addView("game", gameView);
 
         // wykrywanie opuszczenia strony, źródło: https://vaadin.com/forum#!/thread/2518250
         Page.getCurrent().getJavaScript().addFunction("aboutToClose", new JavaScriptFunction() {
@@ -40,7 +39,7 @@ public class MyUI extends UI {
 
     //usunięcie z broadcastera
     private void clean() {
-        Broadcaster.unregister(playersView);
+        Broadcaster.unregister(gameView);
     }
 
     @WebServlet(urlPatterns = "/*", name = "MyUIServlet", asyncSupported = true)
