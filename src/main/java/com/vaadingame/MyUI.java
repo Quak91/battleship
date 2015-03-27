@@ -12,7 +12,6 @@ import com.vaadin.ui.UI;
 import elemental.json.JsonArray;
 
 @Push
-@PreserveOnRefresh
 @Theme("mytheme")
 @Widgetset("com.vaadingame.MyAppWidgetset")
 public class MyUI extends UI {
@@ -39,13 +38,13 @@ public class MyUI extends UI {
         Page.getCurrent().getJavaScript().execute("window.onbeforeunload = function (e) { var e = e || window.event; aboutToClose(); return; };");
     }
 
-    //usunięcie gracza ze wszystkich broadcasterów
+    //usunięcie z broadcastera
     private void clean() {
-        PlayersBroadcaster.unregister(playersView);
+        Broadcaster.unregister(playersView);
     }
 
     @WebServlet(urlPatterns = "/*", name = "MyUIServlet", asyncSupported = true)
-    @VaadinServletConfiguration(ui = MyUI.class, productionMode = false, heartbeatInterval = 1, closeIdleSessions = true)
+    @VaadinServletConfiguration(ui = MyUI.class, productionMode = false)
     public static class MyUIServlet extends VaadinServlet {
     }
 }

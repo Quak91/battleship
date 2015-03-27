@@ -6,13 +6,11 @@ import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.Page;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
-
 import java.util.LinkedList;
 
-public class PlayersView extends VerticalLayout implements View, PlayersBroadcaster.BroadcastListener{
+public class PlayersView extends VerticalLayout implements View, Broadcaster.BroadcastListener{
     final Navigator navigator;
     private String name;
     private Table table;
@@ -29,7 +27,7 @@ public class PlayersView extends VerticalLayout implements View, PlayersBroadcas
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
                 getSession().setAttribute("login", null);
-                PlayersBroadcaster.unregister(PlayersView.this);
+                Broadcaster.unregister(PlayersView.this);
                 navigator.navigateTo("");
             }
         }));
@@ -42,23 +40,29 @@ public class PlayersView extends VerticalLayout implements View, PlayersBroadcas
         else {
             Page.getCurrent().setTitle("Battleship - lista graczy");
             this.name = getSession().getAttribute("login").toString();
-            PlayersBroadcaster.register(this);
+            Broadcaster.register(this);
         }
     }
 
     @Override
-    public void receiveList(LinkedList<PlayersBroadcaster.BroadcastListener> list) {
+    public void receiveList(LinkedList<Broadcaster.BroadcastListener> list) {
         getUI().getSession().lock();
         try {
             table.removeAllItems();
             int i = 1;
-            for (PlayersBroadcaster.BroadcastListener listener : list) {
+            for (final Broadcaster.BroadcastListener listener : list) {
                 if (!getName().equals(listener.getName())) {
                     Object newItemId = table.addItem();
                     Item row = table.getItem(newItemId);
                     row.getItemProperty("Lp").setValue(i);
                     row.getItemProperty("Nazwa gracza").setValue(listener.getName());
-                    row.getItemProperty("Zaproś do gry").setValue(new Button("Zaproś do gry"));
+                    row.getItemProperty("Zaproś do gry").setValue(new Button("Zaproś do gry", new Button.ClickListener() {
+                        //wysyłanie zaproszenia
+                        @Override
+                        public void buttonClick(Button.ClickEvent clickEvent) {
+                            Broadcaster.invite(getName(), listener.getName());
+                        }
+                    }));
                     i++;
                 }
             }
@@ -71,5 +75,10 @@ public class PlayersView extends VerticalLayout implements View, PlayersBroadcas
     @Override
     public String getName() {
         return name;
+    }
+
+    @Override
+    public void receiveInvitation(String s) {
+        //window.setmodal .setclosable
     }
 }

@@ -4,13 +4,14 @@ import java.util.LinkedList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class PlayersBroadcaster {
+public class Broadcaster {
     static ExecutorService executorService = Executors.newSingleThreadExecutor();
     private static LinkedList<BroadcastListener> listeners = new LinkedList<BroadcastListener>();
 
     public interface BroadcastListener {
         void receiveList(LinkedList<BroadcastListener> list);
         String getName();
+        void receiveInvitation(String s);
     }
 
     public static synchronized void register(BroadcastListener listener) {
@@ -33,6 +34,20 @@ public class PlayersBroadcaster {
                     listener.receiveList(listeners);
                 }
             });
+        }
+    }
+
+    public static synchronized void invite(final String s, String r) {
+        for (final BroadcastListener listener: listeners) {
+            if(listener.getName().equals(r)) {
+                executorService.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        listener.receiveInvitation(s);
+                    }
+                });
+                break;
+            }
         }
     }
 }
