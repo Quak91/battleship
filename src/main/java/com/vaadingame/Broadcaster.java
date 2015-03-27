@@ -17,6 +17,9 @@ public class Broadcaster {
         void receiveList(LinkedList<BroadcastListener> list);
         String getName();
         void receiveInvitation(String s);
+        String getOpponent();
+        void invitationAccepted();
+        void invitationDeclined();
     }
 
     public static synchronized void register(BroadcastListener listener, String list) {
@@ -66,5 +69,13 @@ public class Broadcaster {
                 break;
             }
         }
+    }
+
+    public static synchronized void accept(String r) {
+        //TODO r.invitationAccepted()
+    }
+
+    public static synchronized void decline(String r) {
+        //TODO r.invitationDeclined()
     }
 }
