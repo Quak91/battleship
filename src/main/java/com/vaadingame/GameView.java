@@ -13,7 +13,6 @@ import java.util.LinkedList;
 public class GameView extends VerticalLayout implements View, Broadcaster.BroadcastListener{
     final Navigator navigator;
     private String name; //nazwa gracza
-    private String opponent; //nazwa przeciwnika
 
     private VerticalLayout listLayout;
     private Table table;
@@ -44,7 +43,6 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
         // widok gry
         gameLayout = new VerticalLayout();
         gameLayout.setSizeFull();
-        this.opponent = "";
         setContent("list");
     }
 
@@ -87,7 +85,7 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
                         //wysyłanie zaproszenia
                         @Override
                         public void buttonClick(Button.ClickEvent clickEvent) {
-                            sendInvitation(listener.getName());
+                            Broadcaster.invite(getName(), listener.getName());
                         }
                     }));
                     i++;
@@ -105,38 +103,8 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
     }
 
     @Override
-    public String getOpponent() {
-        return opponent;
-    }
-
-    // wysyłanie zaproszenia
-    private void sendInvitation(String r) {
-        Broadcaster.invite(getName(), r);
-        opponent = r;
-        Broadcaster.unregister(this, "playerList");
-        Broadcaster.register(this, "game");
-        //TODO wyświetlić okno w trakcie oczekiwania na decyzję przeciwnika
-    }
-
-    @Override
     public void receiveInvitation(String s) {
         //window.setmodal .setclosable
-        opponent = s;
-        Broadcaster.unregister(this, "playerList");
-        Broadcaster.register(this, "game");
-        /* TODO wyświetlić okno z pytaniem "czy akceptujesz zaproszenie od gracza s?"
-            NIE -> Broadcaster.decline(opponent), opponent ="", zmiana kanału (game->playerList), window.close()
-            TAK -> Broadcaster.accept(opponent), window.close(), setContent("game"), rozpoczęcie gry
-         */
     }
 
-    @Override
-    public void invitationAccepted() {
-        //TODO window.close(), setContent("game"), rozpoczęcie gry
-    }
-
-    @Override
-    public void invitationDeclined() {
-        //TODO window.close(), Notification, zmiana kanału(game->playerList)
-    }
 }
