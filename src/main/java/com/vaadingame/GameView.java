@@ -33,7 +33,7 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
                 getSession().setAttribute("login", null);
-                Broadcaster.unregister(GameView.this);
+                Broadcaster.unregister(GameView.this, "playerList");
                 navigator.navigateTo("");
             }
         }));
@@ -69,7 +69,7 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
         else {
             Page.getCurrent().setTitle("Battleship");
             this.name = getSession().getAttribute("login").toString();
-            Broadcaster.register(this);
+            Broadcaster.register(this, "playerList");
         }
     }
 
