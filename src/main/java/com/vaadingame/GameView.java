@@ -14,16 +14,22 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
     final Navigator navigator;
     private String name;
     private Table table;
+    private VerticalLayout listLayout;
+    private VerticalLayout gameLayout;
 
     public GameView(final Navigator navigator) {
         setSizeFull();
         this.navigator = navigator;
+
+        // widok listy graczy
+        listLayout = new VerticalLayout();
+        listLayout.setSizeFull();
         table = new Table("Lista graczy");
         table.addContainerProperty("Lp", Integer.class, null);
         table.addContainerProperty("Nazwa gracza", String.class, null);
         table.addContainerProperty("Zaproś do gry", Button.class, null);
-        addComponent(table);
-        addComponent(new Button("Wyloguj", new Button.ClickListener() {
+        listLayout.addComponent(table);
+        listLayout.addComponent(new Button("Wyloguj", new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
                 getSession().setAttribute("login", null);
@@ -31,6 +37,29 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
                 navigator.navigateTo("");
             }
         }));
+
+        // widok gry
+        gameLayout = new VerticalLayout();
+        gameLayout.setSizeFull();
+        gameLayout.addComponent(new Button("test", new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent clickEvent) {
+                setContent("list");
+            }
+        }));
+        setContent("list");
+    }
+
+    //zmiana widoku
+    private void setContent(String content) {
+        if (content.equals("list")) {
+            this.removeAllComponents();
+            this.addComponent(listLayout);
+        } else
+            if(content.equals("game")) {
+                this.removeAllComponents();
+                this.addComponent(gameLayout);
+            }
     }
 
     @Override
@@ -38,7 +67,7 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
         //jeśli niezalogowany to przekierowanie do logowania
         if(getSession().getAttribute("login")==null) navigator.navigateTo("login");
         else {
-            Page.getCurrent().setTitle("Battleship - lista graczy");
+            Page.getCurrent().setTitle("Battleship");
             this.name = getSession().getAttribute("login").toString();
             Broadcaster.register(this);
         }
@@ -80,5 +109,6 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
     @Override
     public void receiveInvitation(String s) {
         //window.setmodal .setclosable
+
     }
 }
