@@ -39,8 +39,7 @@ public class MyUI extends UI {
 
     //usunięcie z broadcastera
     private void clean() {
-        Broadcaster.unregister(gameView, "playerList");
-        Broadcaster.unregister(gameView, "game");
+        Broadcaster.unregister(gameView);
     }
 
     @WebServlet(urlPatterns = "/*", name = "MyUIServlet", asyncSupported = true)
