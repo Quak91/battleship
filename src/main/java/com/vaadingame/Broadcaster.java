@@ -12,11 +12,7 @@ public class Broadcaster {
 
     public interface BroadcastListener {
         void receiveList(LinkedList<BroadcastListener> list);
-        String getName();
-        void receiveInvitation(BroadcastListener player);
-        void declined();
-        void accepted(BroadcastListener player);
-        void getShot();
+
     }
 
     public static synchronized void register(BroadcastListener listener) {

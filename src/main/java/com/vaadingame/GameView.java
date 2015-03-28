@@ -9,13 +9,13 @@ import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.*;
 import java.util.LinkedList;
 
-public class GameView extends VerticalLayout implements View, Broadcaster.BroadcastListener{
+public class GameView extends VerticalLayout implements View, Broadcaster.BroadcastListener, Player{
     final Navigator navigator;
     private String name; //nazwa gracza
-    private Broadcaster.BroadcastListener opponent;
+    private Player opponent; //przeciwnik
 
     private VerticalLayout listLayout;
-    private Table table;
+    private Table tablePlayers;
     private Window waitingWindow;
 
     private VerticalLayout gameLayout;
@@ -27,11 +27,11 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
         // widok listy graczy
         listLayout = new VerticalLayout();
         listLayout.setSizeFull();
-        table = new Table("Lista graczy");
-        table.addContainerProperty("Lp", Integer.class, null);
-        table.addContainerProperty("Nazwa gracza", String.class, null);
-        table.addContainerProperty("Zaproś do gry", Button.class, null);
-        listLayout.addComponent(table);
+        tablePlayers = new Table("Lista graczy");
+        tablePlayers.addContainerProperty("Lp", Integer.class, null);
+        tablePlayers.addContainerProperty("Nazwa gracza", String.class, null);
+        tablePlayers.addContainerProperty("Zaproś do gry", Button.class, null);
+        listLayout.addComponent(tablePlayers);
         listLayout.addComponent(new Button("Wyloguj", new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
@@ -88,28 +88,28 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
     }
 
     @Override
-    public void receiveList(LinkedList<Broadcaster.BroadcastListener> players) {
+    public void receiveList(LinkedList<Broadcaster.BroadcastListener> listeners) {
         getUI().getSession().lock();
         try {
-            table.removeAllItems();
+            tablePlayers.removeAllItems();
             int i = 1;
-            for (final Broadcaster.BroadcastListener player : players) {
-                if (!getName().equals(player.getName())) {
-                    Object newItemId = table.addItem();
-                    Item row = table.getItem(newItemId);
+            for (final Broadcaster.BroadcastListener listener : listeners) {
+                if (!getName().equals(((Player) listener).getName())) {
+                    Object newItemId = tablePlayers.addItem();
+                    Item row = tablePlayers.getItem(newItemId);
                     row.getItemProperty("Lp").setValue(i);
-                    row.getItemProperty("Nazwa gracza").setValue(player.getName());
+                    row.getItemProperty("Nazwa gracza").setValue(((Player) listener).getName());
                     row.getItemProperty("Zaproś do gry").setValue(new Button("Zaproś do gry", new Button.ClickListener() {
                         //wysyłanie zaproszenia
                         @Override
                         public void buttonClick(Button.ClickEvent clickEvent) {
-                            invite(player);
+                            invite((Player)listener);
                         }
                     }));
                     i++;
                 }
             }
-            table.setPageLength(table.size());
+            tablePlayers.setPageLength(tablePlayers.size());
         } finally {
             getUI().getSession().unlock();
         }
@@ -121,8 +121,7 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
     }
 
     // zaproszenie do gry
-    private void invite(Broadcaster.BroadcastListener player) {
-        System.out.println(GameView.this.getName()+" zaprasza gracza "+player.getName());
+    private void invite(Player player) {
         player.receiveInvitation(this);
         Broadcaster.unregister(this);
         waitingWindow = new Window("Czekaj");
@@ -137,19 +136,21 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
         getUI().addWindow(waitingWindow);
     }
 
+    // zaproszenie zaakceptowane
     @Override
-    public void accepted(Broadcaster.BroadcastListener player) {
+    public void accepted(Player player) {
         getUI().getSession().lock();
         try {
             waitingWindow.close();
             opponent = player;
             setContent("game");
-            //TODO rozpoczęcie gry
+            //TODO startGame
         } finally {
             getUI().getSession().unlock();
         }
     }
 
+    // zaproszenie odrzucone
     @Override
     public void declined() {
         getUI().getSession().lock();
@@ -161,8 +162,9 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
         }
     }
 
+    // otrzymanie zaproszenia
     @Override
-    public void receiveInvitation(final Broadcaster.BroadcastListener player) {
+    public void receiveInvitation(final Player player) {
         getUI().getSession().lock();
         try {
             Broadcaster.unregister(this);
@@ -176,16 +178,18 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
             Button btnOk = new Button("Tak", new Button.ClickListener() {
                 @Override
                 public void buttonClick(Button.ClickEvent clickEvent) {
+                    // akceptuje zaproszenie
                     opponent = player;
                     opponent.accepted(GameView.this);
                     window.close();
                     setContent("game");
-                    //TODO rozpoczęcie gry
+                    //TODO startGame
                 }
             });
             Button btnNo = new Button("Nie", new Button.ClickListener() {
                 @Override
                 public void buttonClick(Button.ClickEvent clickEvent) {
+                    // odrzuca zaproszenie
                     player.declined();
                     Broadcaster.register(GameView.this);
                     window.close();
