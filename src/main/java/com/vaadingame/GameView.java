@@ -15,6 +15,7 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
     private Player opponent; //przeciwnik
 
     private VerticalLayout listLayout;
+    private Panel panelPlayers;
     private Table tablePlayers;
     private Window waitingWindow;
 
@@ -23,23 +24,31 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
     public GameView(final Navigator navigator) {
         setSizeFull();
         this.navigator = navigator;
+        setMargin(true);
 
         // widok listy graczy
+        panelPlayers = new Panel("Lista graczy");
+        panelPlayers.setSizeUndefined();
         listLayout = new VerticalLayout();
-        listLayout.setSizeFull();
-        tablePlayers = new Table("Lista graczy");
+        listLayout.setSizeUndefined();
+        listLayout.setMargin(true);
+        tablePlayers = new Table();
         tablePlayers.addContainerProperty("Lp", Integer.class, null);
         tablePlayers.addContainerProperty("Nazwa gracza", String.class, null);
         tablePlayers.addContainerProperty("Zaproś do gry", Button.class, null);
         listLayout.addComponent(tablePlayers);
-        listLayout.addComponent(new Button("Wyloguj", new Button.ClickListener() {
+        panelPlayers.setContent(listLayout);
+        Button btnLogout = new Button("Wyloguj", new Button.ClickListener() {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
                 getSession().setAttribute("login", null);
                 Broadcaster.unregister(GameView.this);
                 navigator.navigateTo("");
             }
-        }));
+        });
+        listLayout.addComponent(new Label("&nbsp;", ContentMode.HTML));
+        listLayout.addComponent(btnLogout);
+        listLayout.setComponentAlignment(btnLogout, Alignment.BOTTOM_RIGHT);
 
         // widok gry
         gameLayout = new VerticalLayout();
@@ -68,7 +77,8 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
     private void setContent(String content) {
         if (content.equals("list")) {
             this.removeAllComponents();
-            this.addComponent(listLayout);
+            this.addComponent(panelPlayers);
+            setComponentAlignment(panelPlayers, Alignment.TOP_CENTER);
         } else
             if(content.equals("game")) {
                 this.removeAllComponents();
