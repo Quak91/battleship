@@ -5,5 +5,4 @@ public interface Player {
     void receiveInvitation(Player player);
     void declined();
     void accepted(Player player);
-    void getShot();
 }

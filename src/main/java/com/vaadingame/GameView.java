@@ -12,7 +12,7 @@ import java.util.LinkedList;
 public class GameView extends VerticalLayout implements View, Broadcaster.BroadcastListener, Player{
     final Navigator navigator;
     private String name; //nazwa gracza
-    private Player opponent; //przeciwnik
+    private Player enemy; //przeciwnik
 
     private VerticalLayout listLayout;
     private Panel panelPlayers;
@@ -20,13 +20,19 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
     private Window waitingWindow;
 
     private VerticalLayout gameLayout;
+    private Table tableMyBoard; //plansza gracza
+    private Table tableEnemyBoard; //plansza przeciwnika
+    private Label lblTurn; //czyja kolej
+    private Label lblMyName;
+    private Label lblEnemyName;
+    private boolean myTurn; //czy teraz mój ruch
 
     public GameView(final Navigator navigator) {
         setSizeFull();
         this.navigator = navigator;
         setMargin(true);
 
-        // widok listy graczy
+        //region widok listy graczy
         panelPlayers = new Panel("Lista graczy");
         panelPlayers.setSizeUndefined();
         listLayout = new VerticalLayout();
@@ -49,28 +55,79 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
         listLayout.addComponent(new Label("&nbsp;", ContentMode.HTML));
         listLayout.addComponent(btnLogout);
         listLayout.setComponentAlignment(btnLogout, Alignment.BOTTOM_RIGHT);
+        //na początku ustawiam widok na listę graczy
+        setContent("list");
+        //endregion
 
-        // widok gry
+        //region widok gry
         gameLayout = new VerticalLayout();
         gameLayout.setSizeFull();
-        gameLayout.addComponent(new Button("shoot", new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent clickEvent) {
-                opponent.getShot();
-            }
-        }));
+        gameLayout.setHeightUndefined();
 
-        setContent("list");
-    }
-
-    @Override
-    public void getShot() {
-        getUI().getSession().lock();
-        try {
-            addComponent(new Label(opponent.getName()+" strzelił do ciebie!"));
-        } finally {
-            getUI().getSession().unlock();
+        //TODO dodać cellStyleGenerator do kolorowania planszy
+        //region plansza gracza
+        tableMyBoard = new Table();
+        //dodaję kolumny
+        for(int i=1; i<=10; i++) {
+            tableMyBoard.addContainerProperty(i + "", String.class, null);
+            tableMyBoard.setColumnWidth(i + "", 40);
         }
+        //dodaje wiersze
+        for(int i=0; i<10; i++) {
+            tableMyBoard.addItem(new Object[]{" ", " ", " ", " ", " ", " ", " ", " ", " ", " "}, i + 1);
+        }
+        //ukrywam nagłówki
+        tableMyBoard.setColumnHeaderMode(Table.ColumnHeaderMode.HIDDEN);
+        //ustawiam wysokość tabeli
+        tableMyBoard.setPageLength(10);
+        //endregion
+
+        //region plansza przeciwnika
+        tableEnemyBoard = new Table();
+        //dodaję kolumny
+        for(int i=1; i<=10; i++) {
+            tableEnemyBoard.addContainerProperty(i + "", String.class, null);
+            tableEnemyBoard.setColumnWidth(i + "", 40);
+        }
+        //dodaje wiersze
+        for(int i=0; i<10; i++) {
+            tableEnemyBoard.addItem(new Object[]{" ", " ", " ", " ", " ", " ", " ", " ", " ", " "}, i + 1);
+        }
+        //ukrywam nagłówki
+        tableEnemyBoard.setColumnHeaderMode(Table.ColumnHeaderMode.HIDDEN);
+        //ustawiam wysokość tabeli
+        tableEnemyBoard.setPageLength(10);
+        //endregion
+
+        //region rozmieszczenie komponentów
+        HorizontalLayout horizontalLayoutBoards = new HorizontalLayout();
+        HorizontalLayout horizontalLayoutNames = new HorizontalLayout();
+
+        lblTurn = new Label("Ruch przeciwnika");
+        lblMyName = new Label("Twój nick");
+        lblEnemyName = new Label("Nick przeciwnika");
+
+        lblTurn.setWidthUndefined();
+        lblMyName.setWidthUndefined();
+        lblEnemyName.setWidthUndefined();
+
+        gameLayout.addComponent(lblTurn);
+        gameLayout.setComponentAlignment(lblTurn, Alignment.MIDDLE_CENTER);
+
+        gameLayout.addComponent(horizontalLayoutNames);
+        horizontalLayoutNames.addComponents(lblMyName, lblEnemyName);
+        horizontalLayoutNames.setSizeFull();
+        horizontalLayoutNames.setComponentAlignment(lblMyName, Alignment.MIDDLE_CENTER);
+        horizontalLayoutNames.setComponentAlignment(lblEnemyName, Alignment.MIDDLE_CENTER);
+
+        gameLayout.addComponent(horizontalLayoutBoards);
+        horizontalLayoutBoards.addComponent(tableMyBoard);
+        horizontalLayoutBoards.addComponent(tableEnemyBoard);
+        horizontalLayoutBoards.setSizeFull();
+        horizontalLayoutBoards.setComponentAlignment(tableMyBoard, Alignment.MIDDLE_CENTER);
+        horizontalLayoutBoards.setComponentAlignment(tableEnemyBoard, Alignment.MIDDLE_CENTER);
+        //endregion
+        //endregion
     }
 
     //zmiana widoku
@@ -84,6 +141,11 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
                 this.removeAllComponents();
                 this.addComponent(gameLayout);
             }
+    }
+
+    //rozpoczęcie gry
+    private void startGame() {
+        //TODO startGame
     }
 
     @Override
@@ -146,32 +208,6 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
         getUI().addWindow(waitingWindow);
     }
 
-    // zaproszenie zaakceptowane
-    @Override
-    public void accepted(Player player) {
-        getUI().getSession().lock();
-        try {
-            waitingWindow.close();
-            opponent = player;
-            setContent("game");
-            //TODO startGame
-        } finally {
-            getUI().getSession().unlock();
-        }
-    }
-
-    // zaproszenie odrzucone
-    @Override
-    public void declined() {
-        getUI().getSession().lock();
-        try {
-            waitingWindow.close();
-            Broadcaster.register(this);
-        } finally {
-            getUI().getSession().unlock();
-        }
-    }
-
     // otrzymanie zaproszenia
     @Override
     public void receiveInvitation(final Player player) {
@@ -189,11 +225,11 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
                 @Override
                 public void buttonClick(Button.ClickEvent clickEvent) {
                     // akceptuje zaproszenie
-                    opponent = player;
-                    opponent.accepted(GameView.this);
+                    enemy = player;
+                    enemy.accepted(GameView.this);
                     window.close();
                     setContent("game");
-                    //TODO startGame
+                    startGame();
                 }
             });
             Button btnNo = new Button("Nie", new Button.ClickListener() {
@@ -213,6 +249,32 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
             window.setModal(true);
             window.setClosable(false);
             getUI().addWindow(window);
+        } finally {
+            getUI().getSession().unlock();
+        }
+    }
+
+    // zaproszenie zaakceptowane
+    @Override
+    public void accepted(Player player) {
+        getUI().getSession().lock();
+        try {
+            waitingWindow.close();
+            enemy = player;
+            setContent("game");
+            startGame();
+        } finally {
+            getUI().getSession().unlock();
+        }
+    }
+
+    // zaproszenie odrzucone
+    @Override
+    public void declined() {
+        getUI().getSession().lock();
+        try {
+            waitingWindow.close();
+            Broadcaster.register(this);
         } finally {
             getUI().getSession().unlock();
         }
