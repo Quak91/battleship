@@ -11,8 +11,8 @@ import java.util.LinkedList;
 
 public class GameView extends VerticalLayout implements View, Broadcaster.BroadcastListener, Player{
     final Navigator navigator;
-    private String name; //nazwa gracza
-    private Player enemy; //przeciwnik
+    private String name;    //nazwa gracza
+    private Player enemy;   //przeciwnik
 
     private VerticalLayout listLayout;
     private Panel panelPlayers;
@@ -20,12 +20,14 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
     private Window waitingWindow;
 
     private VerticalLayout gameLayout;
-    private Table tableMyBoard; //plansza gracza
-    private Table tableEnemyBoard; //plansza przeciwnika
-    private Label lblTurn; //czyja kolej
+    private Table tableMyBoard;     //plansza gracza
+    private Table tableEnemyBoard;  //plansza przeciwnika
+    private Label lblTurn;          //czyja kolej
     private Label lblMyName;
     private Label lblEnemyName;
-    private boolean myTurn; //czy teraz mój ruch
+    private boolean myTurn;         //czy teraz mój ruch
+    private int myHitCounter;       //ile razy trafiłem
+    private int enemyHitCounter;    //ile razy przeciwnik trafił
 
     public GameView(final Navigator navigator) {
         setSizeFull();
@@ -136,7 +138,7 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
         HorizontalLayout horizontalLayoutBoards = new HorizontalLayout();
         HorizontalLayout horizontalLayoutNames = new HorizontalLayout();
 
-        lblTurn = new Label("Ruch przeciwnika");
+        lblTurn = new Label("Ruch przeciwnika", ContentMode.HTML);
         lblMyName = new Label("Twój nick");
         lblEnemyName = new Label("Nick przeciwnika");
 
@@ -181,6 +183,8 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
         setMyTurn(myTurn);
         setMyName(getName());
         setEnemyName(enemy.getName());
+        myHitCounter = 0;
+        enemyHitCounter = 0;
         placeRandomShips();
         setContent("game");
     }
@@ -325,8 +329,8 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
 
     private void setMyTurn(boolean myTurn) {
         this.myTurn = myTurn;
-        if(myTurn) lblTurn.setValue("Twój ruch");
-        else lblTurn.setValue("Ruch przeciwnika");
+        if(myTurn) lblTurn.setValue("<p style=\"color:green;font-size:22px\">Twój ruch</p>");
+        else lblTurn.setValue("<p style=\"color:red;font-size:22px\">Ruch przeciwnika</p>");
     }
 
     // ustawia wartość pola w tabeli
@@ -341,8 +345,31 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
         tab = board.getRandom();
         for(int i=0; i<10; i++)
             for(int j=0; j<10; j++) {
-                if(tab[i][j] == 0) setField(tableMyBoard, i, j, " ");
+                if(tab[i][j] == 0 || tab[i][j] == 1) setField(tableMyBoard, i, j, " ");
                 else if(tab[i][j] == 2) setField(tableMyBoard, i, j, "  ");
             }
+    }
+
+    // strzelam do przeciwnika
+    private void shoot(int x, int y) {
+
+    }
+
+    // przeciwnik do mnie strzelił
+    @Override
+    public void getShot(int x, int y) {
+
+    }
+
+    // przeciwnik odpowiedział, że trafiłem
+    @Override
+    public void hit(int x, int y) {
+
+    }
+
+    // przeciwnik odpowiedział, że nie trafiłem
+    @Override
+    public void mishit(int x, int y) {
+
     }
 }
