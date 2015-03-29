@@ -67,13 +67,13 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
         //region plansza gracza
         tableMyBoard = new Table();
         //dodaję kolumny
-        for(int i=1; i<=10; i++) {
+        for(int i=0; i<10; i++) {
             tableMyBoard.addContainerProperty(i + "", String.class, null);
             tableMyBoard.setColumnWidth(i + "", 40);
         }
         //dodaje wiersze
         for(int i=0; i<10; i++) {
-            tableMyBoard.addItem(new Object[]{" ", " ", " ", " ", " ", " ", " ", " ", " ", " "}, i + 1);
+            tableMyBoard.addItem(new Object[]{" ", " ", " ", " ", " ", " ", " ", " ", " ", " "}, i);
         }
         //ukrywam nagłówki
         tableMyBoard.setColumnHeaderMode(Table.ColumnHeaderMode.HIDDEN);
@@ -102,13 +102,13 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
         //region plansza przeciwnika
         tableEnemyBoard = new Table();
         //dodaję kolumny
-        for(int i=1; i<=10; i++) {
+        for(int i=0; i<10; i++) {
             tableEnemyBoard.addContainerProperty(i + "", String.class, null);
             tableEnemyBoard.setColumnWidth(i + "", 40);
         }
         //dodaje wiersze
         for(int i=0; i<10; i++) {
-            tableEnemyBoard.addItem(new Object[]{" ", " ", " ", " ", " ", " ", " ", " ", " ", " "}, i + 1);
+            tableEnemyBoard.addItem(new Object[]{" ", " ", " ", " ", " ", " ", " ", " ", " ", " "}, i);
         }
         //ukrywam nagłówki
         tableEnemyBoard.setColumnHeaderMode(Table.ColumnHeaderMode.HIDDEN);
@@ -177,8 +177,12 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
     }
 
     //rozpoczęcie gry
-    private void startGame() {
-        //TODO startGame
+    private void startGame(boolean myTurn) {
+        setMyTurn(myTurn);
+        setMyName(getName());
+        setEnemyName(enemy.getName());
+        placeRandomShips();
+        setContent("game");
     }
 
     @Override
@@ -261,8 +265,7 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
                     enemy = player;
                     enemy.accepted(GameView.this);
                     window.close();
-                    setContent("game");
-                    startGame();
+                    startGame(false);
                 }
             });
             Button btnNo = new Button("Nie", new Button.ClickListener() {
@@ -294,8 +297,7 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
         try {
             waitingWindow.close();
             enemy = player;
-            setContent("game");
-            startGame();
+            startGame(true);
         } finally {
             getUI().getSession().unlock();
         }
@@ -313,4 +315,34 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
         }
     }
 
+    private void setMyName(String name) {
+        lblMyName.setValue(name);
+    }
+
+    private void setEnemyName(String name) {
+        lblEnemyName.setValue(name);
+    }
+
+    private void setMyTurn(boolean myTurn) {
+        this.myTurn = myTurn;
+        if(myTurn) lblTurn.setValue("Twój ruch");
+        else lblTurn.setValue("Ruch przeciwnika");
+    }
+
+    // ustawia wartość pola w tabeli
+    private void setField(Table table, int x, int y, String value) {
+        table.getItem(y).getItemProperty(x+"").setValue(value);
+    }
+
+    // losowe ustawienie statków
+    private void placeRandomShips() {
+        Board board = new Board();
+        int[][] tab;
+        tab = board.getRandom();
+        for(int i=0; i<10; i++)
+            for(int j=0; j<10; j++) {
+                if(tab[i][j] == 0) setField(tableMyBoard, i, j, " ");
+                else if(tab[i][j] == 2) setField(tableMyBoard, i, j, "  ");
+            }
+    }
 }
