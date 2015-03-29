@@ -195,6 +195,7 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
         setEnemyName(enemy.getName());
         myHitCounter = 0;
         enemyHitCounter = 0;
+        clearEnemyBoard();
         placeRandomShips();
         setContent("game");
     }
@@ -365,6 +366,13 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
             }
     }
 
+    // czyszczenie planszy przeciwnika
+    private void clearEnemyBoard() {
+        for(int i=0; i<10; i++)
+            for(int j=0; j<10; j++)
+                setField(tableEnemyBoard, i, j, " ");
+    }
+
     // strzelam do przeciwnika (pod warunkiem, że teraz mój ruch oraz wartość pola to 1 spacja)
     private void shoot(int x, int y) {
         if(myTurn && getField(tableEnemyBoard, x, y).equals(" ")) {
@@ -383,9 +391,32 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
                 enemyHitCounter++;
                 enemy.hit(x, y);
                 setField(tableMyBoard, x, y, "    ");
+                //region przegrałeś
                 if(enemyHitCounter == 17) {
-                    //TODO przegrałem
+                    final Window window = new Window("Koniec");
+                    VerticalLayout windowLayout = new VerticalLayout();
+                    windowLayout.setMargin(true);
+                    window.setContent(windowLayout);
+                    windowLayout.addComponent(new Label("Przegrałeś :("));
+                    windowLayout.addComponent(new Label(""));
+                    Button btnOk = new Button("Ok", new Button.ClickListener() {
+                        @Override
+                        public void buttonClick(Button.ClickEvent clickEvent) {
+                            //przejście do listy graczy
+                            enemy = null;
+                            Broadcaster.register(GameView.this);
+                            setContent("list");
+                            window.close();
+                        }
+                    });
+                    windowLayout.addComponent(btnOk);
+                    windowLayout.setComponentAlignment(btnOk, Alignment.MIDDLE_CENTER);
+                    window.setModal(true);
+                    window.setClosable(false);
+                    window.center();
+                    getUI().addWindow(window);
                 }
+                //endregion
             } else {
                 //nie trafił
                 enemy.mishit(x, y);
@@ -405,9 +436,32 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
             setMyTurn(true);
             myHitCounter++;
             setField(tableEnemyBoard, x, y, "   ");
+            //region wygrałeś
             if(myHitCounter == 17) {
-                //TODO wygrałem
+                final Window window = new Window("Koniec");
+                VerticalLayout windowLayout = new VerticalLayout();
+                windowLayout.setMargin(true);
+                window.setContent(windowLayout);
+                windowLayout.addComponent(new Label("Wygrałeś :)"));
+                windowLayout.addComponent(new Label(""));
+                Button btnOk = new Button("Ok", new Button.ClickListener() {
+                    @Override
+                    public void buttonClick(Button.ClickEvent clickEvent) {
+                        //przejście do listy graczy
+                        enemy = null;
+                        Broadcaster.register(GameView.this);
+                        setContent("list");
+                        window.close();
+                    }
+                });
+                windowLayout.addComponent(btnOk);
+                windowLayout.setComponentAlignment(btnOk, Alignment.MIDDLE_CENTER);
+                window.setModal(true);
+                window.setClosable(false);
+                window.center();
+                getUI().addWindow(window);
             }
+            //endregion
         } finally {
             getUI().getSession().unlock();
         }
