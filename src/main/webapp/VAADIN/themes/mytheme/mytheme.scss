@@ -32,5 +32,16 @@
 @mixin mytheme {
   @include valo;
 
-  // Insert your own theme rules here
+  .v-table-row, .v-table-row-odd {background: white}
+
+  //kolorowanie planszy gracza
+  .v-table-cell-content-myboard-water {background: blue}    // 1 spacja
+  .v-table-cell-content-myboard-ship {background: black}    // 2 spacje
+  .v-table-cell-content-myboard-mishit {background: white}  // 3 spacje
+  .v-table-cell-content-myboard-hit {background: red}       // 4 spacje
+
+  //kolorowanie planszy przeciwnika
+  .v-table-cell-content-enemyboard-unknown {background: gray} // 1 spacja
+  .v-table-cell-content-enemyboard-mishit {background: white} // 2 spacje
+  .v-table-cell-content-enemyboard-hit {background: red}      // 3 spacje
 }

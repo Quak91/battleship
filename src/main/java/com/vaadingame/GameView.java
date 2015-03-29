@@ -64,7 +64,6 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
         gameLayout.setSizeFull();
         gameLayout.setHeightUndefined();
 
-        //TODO dodać cellStyleGenerator do kolorowania planszy
         //region plansza gracza
         tableMyBoard = new Table();
         //dodaję kolumny
@@ -80,6 +79,24 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
         tableMyBoard.setColumnHeaderMode(Table.ColumnHeaderMode.HIDDEN);
         //ustawiam wysokość tabeli
         tableMyBoard.setPageLength(10);
+        //kolorowanie danego pola w zależności od jego wartości
+        tableMyBoard.setCellStyleGenerator(new Table.CellStyleGenerator() {
+            @Override
+            public String getStyle(Table table, Object itemId, Object propertyId) {
+                if (propertyId != null) {
+                    if (table.getItem(itemId).getItemProperty(propertyId).getValue().toString().equals(" "))
+                        return "myboard-water";
+                    else if (table.getItem(itemId).getItemProperty(propertyId).getValue().toString().equals("  "))
+                        return "myboard-ship";
+                    else if (table.getItem(itemId).getItemProperty(propertyId).getValue().toString().equals("   "))
+                        return "myboard-mishit";
+                    else if (table.getItem(itemId).getItemProperty(propertyId).getValue().toString().equals("    "))
+                        return "myboard-hit";
+                    else return null;
+                }
+                return null;
+            }
+        });
         //endregion
 
         //region plansza przeciwnika
@@ -97,6 +114,22 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
         tableEnemyBoard.setColumnHeaderMode(Table.ColumnHeaderMode.HIDDEN);
         //ustawiam wysokość tabeli
         tableEnemyBoard.setPageLength(10);
+        //kolorowanie danego pola w zależności od jego wartości
+        tableEnemyBoard.setCellStyleGenerator(new Table.CellStyleGenerator() {
+            @Override
+            public String getStyle(Table table, Object itemId, Object propertyId) {
+                if (propertyId != null) {
+                    if (table.getItem(itemId).getItemProperty(propertyId).getValue().toString().equals(" "))
+                        return "enemyboard-unknown";
+                    else if (table.getItem(itemId).getItemProperty(propertyId).getValue().toString().equals("  "))
+                        return "enemyboard-mishit";
+                    else if (table.getItem(itemId).getItemProperty(propertyId).getValue().toString().equals("   "))
+                        return "enemyboard-hit";
+                    else return null;
+                }
+                return null;
+            }
+        });
         //endregion
 
         //region rozmieszczenie komponentów
