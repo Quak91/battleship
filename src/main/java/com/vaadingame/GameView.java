@@ -1,6 +1,7 @@
 package com.vaadingame;
 
 import com.vaadin.data.Item;
+import com.vaadin.event.ItemClickEvent;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
@@ -130,6 +131,15 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
                     else return null;
                 }
                 return null;
+            }
+        });
+        //strzelanie do przeciwnika
+        tableEnemyBoard.addItemClickListener(new ItemClickEvent.ItemClickListener() {
+            @Override
+            public void itemClick(ItemClickEvent itemClickEvent) {
+                int column = Integer.parseInt(itemClickEvent.getPropertyId().toString());
+                int row = Integer.parseInt(itemClickEvent.getItemId().toString());
+                shoot(column, row);
             }
         });
         //endregion
@@ -338,6 +348,11 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
         table.getItem(y).getItemProperty(x+"").setValue(value);
     }
 
+    // odczytuje wartość pola z tabeli
+    private String getField(Table table, int x, int y) {
+        return table.getItem(y).getItemProperty(x+"").getValue().toString();
+    }
+
     // losowe ustawienie statków
     private void placeRandomShips() {
         Board board = new Board();
@@ -350,26 +365,62 @@ public class GameView extends VerticalLayout implements View, Broadcaster.Broadc
             }
     }
 
-    // strzelam do przeciwnika
+    // strzelam do przeciwnika (pod warunkiem, że teraz mój ruch oraz wartość pola to 1 spacja)
     private void shoot(int x, int y) {
-
+        if(myTurn && getField(tableEnemyBoard, x, y).equals(" ")) {
+            setMyTurn(false);
+            enemy.getShot(x, y);
+        }
     }
 
     // przeciwnik do mnie strzelił
     @Override
     public void getShot(int x, int y) {
-
+        getUI().getSession().lock();
+        try {
+            if(getField(tableMyBoard, x, y).equals("  ")) {
+                //jeśli trafił
+                enemyHitCounter++;
+                enemy.hit(x, y);
+                setField(tableMyBoard, x, y, "    ");
+                if(enemyHitCounter == 17) {
+                    //TODO przegrałem
+                }
+            } else {
+                //nie trafił
+                enemy.mishit(x, y);
+                setMyTurn(true);
+                setField(tableMyBoard, x, y, "   ");
+            }
+        } finally {
+            getUI().getSession().unlock();
+        }
     }
 
     // przeciwnik odpowiedział, że trafiłem
     @Override
     public void hit(int x, int y) {
-
+        getUI().getSession().lock();
+        try {
+            setMyTurn(true);
+            myHitCounter++;
+            setField(tableEnemyBoard, x, y, "   ");
+            if(myHitCounter == 17) {
+                //TODO wygrałem
+            }
+        } finally {
+            getUI().getSession().unlock();
+        }
     }
 
     // przeciwnik odpowiedział, że nie trafiłem
     @Override
     public void mishit(int x, int y) {
-
+        getUI().getSession().lock();
+        try {
+            setField(tableEnemyBoard, x, y, "  ");
+        } finally {
+            getUI().getSession().unlock();
+        }
     }
 }
